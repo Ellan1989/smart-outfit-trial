@@ -108,6 +108,22 @@
 
   /* 试用版徽章 */
   .edition-badge { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:110; background:rgba(224,120,86,0.95); color:#fff; font-size:10px; font-weight:700; padding:3px 12px; border-radius:10px; letter-spacing:0.5px; box-shadow:0 2px 8px rgba(224,120,86,0.4); display:none; }
+
+  /* API 配置教程折叠区 */
+  .guide-toggle { margin-top:14px; padding:12px 14px; background:#f0f6ff; border:1px solid #d0e3ff; border-radius:12px; font-size:12px; color:#1a73e8; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
+  .guide-toggle:active { background:#e3eeff; }
+  .guide-arrow { transition:transform 0.2s; font-size:18px; }
+  .guide-arrow.open { transform:rotate(90deg); }
+  .guide-steps { margin-top:10px; }
+  .guide-step { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid #f5f5f7; }
+  .guide-step:last-of-type { border-bottom:none; }
+  .gs-num { flex:0 0 24px; width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,#e07856,#d4633f); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .gs-body { flex:1; min-width:0; }
+  .gs-title { font-size:13px; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
+  .gs-desc { font-size:12px; color:#666; line-height:1.6; word-break:break-all; }
+  .gs-desc a { color:#1a73e8; }
+  .gs-desc code { background:#f0f0f2; padding:1px 6px; border-radius:4px; font-size:11px; }
+  .guide-tip { margin-top:12px; padding:12px 14px; background:#fff8e8; border:1px solid #ffe089; border-radius:10px; font-size:11px; color:#8a6d1b; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -221,6 +237,46 @@
       <input type="password" id="ai-key" class="supp-input" placeholder="sk-..." autocomplete="off">
       <div class="supp-hint" id="ai-key-hint"></div>
       <div id="ai-getkey-link" style="margin-top:8px"></div>
+
+      <!-- 详细获取步骤（可折叠） -->
+      <div class="guide-toggle" onclick="toggleGuide()">
+        <span>📋 不知道怎么获取 API Key？点这里看详细步骤</span>
+        <span class="guide-arrow" id="guide-arrow">›</span>
+      </div>
+      <div class="guide-steps" id="guide-steps" style="display:none">
+        <div class="guide-step">
+          <div class="gs-num">1</div>
+          <div class="gs-body">
+            <div class="gs-title">注册智谱账号（免费）</div>
+            <div class="gs-desc">打开 <a href="https://open.bigmodel.cn" target="_blank">open.bigmodel.cn</a>，用手机号注册登录。新用户送免费额度，日常使用基本够用。</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="gs-num">2</div>
+          <div class="gs-body">
+            <div class="gs-title">进入 API Keys 管理页</div>
+            <div class="gs-desc">登录后，点击右上角头像 →「API Keys」，或直接访问：<br><a href="https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys" target="_blank">open.bigmodel.cn/usercenter/proj-mgmt/apikeys</a></div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="gs-num">3</div>
+          <div class="gs-body">
+            <div class="gs-title">创建 API Key</div>
+            <div class="gs-desc">点击「添加 API Key」，随便起个名字（如"穿搭App"），创建后会生成一串以 <code>sk-</code> 开头的密钥。</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="gs-num">4</div>
+          <div class="gs-body">
+            <div class="gs-title">复制粘贴到上方输入框</div>
+            <div class="gs-desc">点「复制」把 Key 复制下来，粘贴到上方的「API Key」输入框，然后点「保存配置」即可。</div>
+          </div>
+        </div>
+        <div class="guide-tip">
+          💡 <b>费用说明：</b>智谱新用户有免费额度。日常打标签+搭配+海报，每月大概几毛到几块钱。可在智谱后台「财务中心」设置消费上限，避免超额。
+        </div>
+      </div>
+
       <div style="margin-top:14px;padding:12px;background:#fff8e8;border:1px solid #ffe089;border-radius:10px;font-size:11px;color:#8a6d1b;line-height:1.6">
         🔒 Key 仅保存在你本机浏览器（localStorage），不会上传服务器，不进入代码。<br>
         建议在智谱后台设置消费上限。
@@ -251,18 +307,18 @@
 
 <!-- ========== JS 模块（按依赖顺序加载） ========== -->
 <!-- edition.js 必须第一个加载，其他模块依赖 EDITION 配置 -->
-<script src="js/edition.js?v=6"></script>
+<script src="js/edition.js?v=7"></script>
 <script src="lib/heic2any.min.js"></script>
 <script src="lib/fingerprint.min.js"></script>
-<script src="js/db.js?v=6"></script>
-<script src="js/config.js?v=6"></script>
-<script src="js/ai.js?v=6"></script>
-<script src="js/image-utils.js?v=6"></script>
-<script src="js/store.js?v=6"></script>
-<script src="js/license.js?v=6"></script>
-<script src="js/page-closet.js?v=6"></script>
-<script src="js/page-outfit.js?v=6"></script>
-<script src="js/page-me.js?v=6"></script>
-<script src="js/main.js?v=6"></script>
+<script src="js/db.js?v=7"></script>
+<script src="js/config.js?v=7"></script>
+<script src="js/ai.js?v=7"></script>
+<script src="js/image-utils.js?v=7"></script>
+<script src="js/store.js?v=7"></script>
+<script src="js/license.js?v=7"></script>
+<script src="js/page-closet.js?v=7"></script>
+<script src="js/page-outfit.js?v=7"></script>
+<script src="js/page-me.js?v=7"></script>
+<script src="js/main.js?v=7"></script>
 </body>
 </html>
