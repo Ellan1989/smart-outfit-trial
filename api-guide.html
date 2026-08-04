@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>API Key 配置指南 · 智能穿搭</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; background:#f5f5f7; color:#2c2c2c; line-height:1.6; padding-bottom:60px; }
+  .wrap { max-width:480px; margin:0 auto; padding:20px 18px; }
+  .hero { background:linear-gradient(135deg,#1a1a2e,#2d3561); color:#fff; border-radius:20px; padding:28px 22px; margin-bottom:20px; }
+  .hero h1 { font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+  .hero p { font-size:13px; opacity:0.85; margin-top:8px; }
+  .hero .badge { display:inline-block; background:rgba(224,120,86,0.9); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:10px; margin-top:12px; }
+  h2 { font-size:17px; font-weight:800; margin:24px 0 12px; color:#1a1a2e; }
+  .step { background:#fff; border-radius:16px; padding:18px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .step-head { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .step-num { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#e07856,#d4633f); color:#fff; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step-title { font-size:15px; font-weight:700; }
+  .step-body { font-size:13px; color:#666; line-height:1.7; }
+  .step-body a { color:#1a73e8; word-break:break-all; }
+  .step-body code { background:#f0f0f2; padding:2px 8px; border-radius:5px; font-size:12px; color:#d4633f; font-family:Menlo,Monaco,monospace; }
+  .btn-link { display:block; margin-top:10px; padding:11px; background:linear-gradient(135deg,#e07856,#d4633f); color:#fff; text-align:center; text-decoration:none; border-radius:12px; font-size:14px; font-weight:700; }
+  .btn-link:active { opacity:0.85; }
+  .tip { background:#fff8e8; border:1px solid #ffe089; border-radius:12px; padding:14px; font-size:12px; color:#8a6d1b; line-height:1.7; margin:16px 0; }
+  .tip b { color:#7a5c0f; }
+  .qa { background:#fff; border-radius:16px; padding:16px 18px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .qa .q { font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:6px; }
+  .qa .q::before { content:'Q '; color:#e07856; }
+  .qa .a { font-size:13px; color:#666; line-height:1.7; }
+  .qa .a::before { content:'A '; color:#34c759; font-weight:700; }
+  .footer { text-align:center; font-size:11px; color:#bbb; margin-top:30px; line-height:1.6; }
+  .img-mock { background:#f0f0f2; border-radius:10px; padding:20px; text-align:center; font-size:12px; color:#999; margin-top:10px; border:1px dashed #d0d0d0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>🔑 API Key 配置指南</h1>
+    <p>智能穿搭使用智谱 AI 提供图像识别和搭配推荐能力。<br>只需 3 分钟，免费配置你自己的 API Key 即可使用全部功能。</p>
+    <span class="badge">免费额度 · 隐私安全 · 你的 Key 只在你手机里</span>
+  </div>
+
+  <h2>📝 配置步骤（共4步）</h2>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">1</div>
+      <div class="step-title">注册智谱开放平台账号（免费）</div>
+    </div>
+    <div class="step-body">
+      用手机号注册并登录智谱开放平台。新用户注册即送免费额度，日常穿搭使用基本够用。
+      <a class="btn-link" href="https://open.bigmodel.cn" target="_blank">前往注册 →</a>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">2</div>
+      <div class="step-title">进入「API Keys」管理页</div>
+    </div>
+    <div class="step-body">
+      登录后，点击右上角头像 →「<b>API Keys</b>」，或直接访问下方链接：
+      <a class="btn-link" href="https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys" target="_blank">打开 API Keys 页面 →</a>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">3</div>
+      <div class="step-title">创建一个新的 API Key</div>
+    </div>
+    <div class="step-body">
+      点击「添加 API Key」按钮，起个名字（比如"穿搭App"），创建后会生成一串以 <code>sk-</code> 开头的密钥字符串。
+      <div class="img-mock">🔐 创建后这里会显示你的密钥，形如：<br><code>sk-xxxxxxxxxxxxxxxxxxxx</code></div>
+      <b>⚠️ 重要：</b>密钥只在创建时完整显示一次，请立即复制保存。如果忘了复制，删掉重建一个即可。
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">4</div>
+      <div class="step-title">回到智能穿搭 App，粘贴并保存</div>
+    </div>
+    <div class="step-body">
+      打开智能穿搭 App →「我的」→「AI 配置」→ 把刚才复制的密钥粘贴到「API Key」输入框 → 点「保存配置」。
+      <div class="img-mock">📱 路径：我的 → 🤖 AI 配置 → 粘贴 Key → 保存</div>
+      看到「✓ AI 配置已保存」的提示就完成了，可以开始添加衣物和使用 AI 功能啦！
+    </div>
+  </div>
+
+  <div class="tip">
+    💰 <b>费用说明</b><br>
+    • 智谱新用户有<b>免费额度</b>（注册即送）<br>
+    • 日常使用（每天打几个标签 + 生成 1-2 套搭配）<b>每月大概几毛到几块钱</b><br>
+    • 可在智谱后台「财务中心 → 消费限额」设置上限，避免意外超额<br>
+    • 费用由你直接付给智谱，与本 App 开发者无关
+  </div>
+
+  <h2>❓ 常见问题</h2>
+
+  <div class="qa">
+    <div class="q">为什么要我自己配置 API Key？</div>
+    <div class="a">这样 AI 的费用由你直接付给智谱（官方价格，无加价），你的数据也只在你手机里处理，更隐私更安全。App 本身完全免费。</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">我的 Key 会被别人看到吗？</div>
+    <div class="a">不会。Key 只保存在你手机浏览器的本地存储（localStorage）里，不会上传到任何服务器，也不会进入代码。换手机需要重新配置。</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">配置后提示"请求失败(401)"？</div>
+    <div class="a">说明 Key 不正确或已失效。请回到智谱 API Keys 页面，重新复制完整的 Key（以 sk- 开头），注意前后不要有空格。</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">提示"请求失败(403)"或"余额不足"？</div>
+    <div class="a">免费额度用完了。登录智谱后台「财务中心」充值即可，10 元够用很久。</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">能不能不用智谱，用别的 AI？</div>
+    <div class="a">在「AI 配置」里选「自定义（OpenAI 兼容接口）」，填入其他厂商的接口地址和模型名即可（需支持视觉和生图能力）。</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">换手机了，Key 还在吗？</div>
+    <div class="a">不在。Key 绑定在当前手机的浏览器里，换手机需要重新配置（Key 不变，只是重新粘贴一次）。</div>
+  </div>
+
+  <div class="footer">
+    智能穿搭 · API Key 配置指南<br>
+    如有疑问请联系分享给你这个 App 的人
+  </div>
+
+</div>
+</body>
+</html>
