@@ -45,6 +45,16 @@
   .tagging-box .tg-icon { font-size:40px; margin-bottom:10px; }
   .tagging-box .tg-status { font-size:14px; color:#333; font-weight:600; }
 
+  /* 添加衣物来源选择菜单 */
+  .add-source-sheet { position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:24px 24px 0 0; padding:10px 20px 30px; z-index:821; transform:translateY(110%); transition:transform 0.3s cubic-bezier(0.2,0.8,0.2,1); box-shadow:0 -8px 40px rgba(0,0,0,0.2); }
+  .add-source-sheet.show { transform:translateY(0); }
+  .add-source-btn { display:flex; align-items:center; gap:14px; padding:16px; background:#f8f8fa; border-radius:14px; margin-bottom:10px; cursor:pointer; }
+  .add-source-btn:active { background:#f0f0f2; }
+  .add-source-btn .as-icon { font-size:28px; flex-shrink:0; }
+  .add-source-btn .as-title { font-size:15px; font-weight:700; color:#1a1a2e; }
+  .add-source-btn .as-desc { font-size:11px; color:#999; margin-top:2px; }
+  .add-source-cancel { text-align:center; padding:14px; font-size:14px; color:#999; font-weight:600; margin-top:6px; cursor:pointer; }
+
   /* 衣橱页 */
   .closet-stats { display:flex; flex-wrap:wrap; gap:6px; padding:14px 20px 4px; }
   .cloth-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 20px 0; }
@@ -166,8 +176,10 @@
     <div class="content" id="me-content"></div>
   </div>
 
-  <!-- 隐藏的文件选择 input（衣橱添加用） -->
-  <input type="file" id="cloth-file-input" accept="image/*" capture="environment" multiple style="display:none">
+  <!-- 隐藏的文件选择 input（衣橱添加用）
+       两个 input：cloth-file-input 走相册（无capture），cloth-camera-input 走拍照（带capture） -->
+  <input type="file" id="cloth-file-input" accept="image/*" multiple style="display:none">
+  <input type="file" id="cloth-camera-input" accept="image/*" capture="environment" style="display:none">
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
@@ -191,6 +203,28 @@
       <div class="tg-icon">🤖</div>
       <div class="tg-status" id="tagging-status">AI 识别中...</div>
     </div>
+  </div>
+
+  <!-- 添加衣物选择菜单（拍照/相册） -->
+  <div class="drawer-mask" id="add-source-mask" onclick="closeAddSource()"></div>
+  <div class="add-source-sheet" id="add-source-sheet">
+    <div class="drawer-handle" onclick="closeAddSource()"></div>
+    <div style="font-size:15px;font-weight:700;text-align:center;margin-bottom:16px">添加衣物</div>
+    <div class="add-source-btn" onclick="chooseFromCamera()">
+      <span class="as-icon">📷</span>
+      <div>
+        <div class="as-title">拍照</div>
+        <div class="as-desc">用摄像头拍衣服</div>
+      </div>
+    </div>
+    <div class="add-source-btn" onclick="chooseFromAlbum()">
+      <span class="as-icon">🖼️</span>
+      <div>
+        <div class="as-title">从相册选择</div>
+        <div class="as-desc">选手机里已有的照片（可多选）</div>
+      </div>
+    </div>
+    <div class="add-source-cancel" onclick="closeAddSource()">取消</div>
   </div>
 
   <!-- 底部抽屉（单品详情用） -->
@@ -307,18 +341,18 @@
 
 <!-- ========== JS 模块（按依赖顺序加载） ========== -->
 <!-- edition.js 必须第一个加载，其他模块依赖 EDITION 配置 -->
-<script src="js/edition.js?v=7"></script>
+<script src="js/edition.js?v=9"></script>
 <script src="lib/heic2any.min.js"></script>
 <script src="lib/fingerprint.min.js"></script>
-<script src="js/db.js?v=7"></script>
-<script src="js/config.js?v=7"></script>
-<script src="js/ai.js?v=7"></script>
-<script src="js/image-utils.js?v=7"></script>
-<script src="js/store.js?v=7"></script>
-<script src="js/license.js?v=7"></script>
-<script src="js/page-closet.js?v=7"></script>
-<script src="js/page-outfit.js?v=7"></script>
-<script src="js/page-me.js?v=7"></script>
-<script src="js/main.js?v=7"></script>
+<script src="js/db.js?v=9"></script>
+<script src="js/config.js?v=9"></script>
+<script src="js/ai.js?v=9"></script>
+<script src="js/image-utils.js?v=9"></script>
+<script src="js/store.js?v=9"></script>
+<script src="js/license.js?v=9"></script>
+<script src="js/page-closet.js?v=9"></script>
+<script src="js/page-outfit.js?v=9"></script>
+<script src="js/page-me.js?v=9"></script>
+<script src="js/main.js?v=9"></script>
 </body>
 </html>
