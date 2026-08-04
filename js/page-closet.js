@@ -49,10 +49,29 @@ const PageCloset = (function(){
     `;
   }
 
-  /** 触发添加衣物（选/拍照） */
+  /** 触发添加衣物：弹出选择菜单（拍照/相册） */
   function addCloth(){
+    document.getElementById('add-source-mask').classList.add('show');
+    document.getElementById('add-source-sheet').classList.add('show');
+  }
+
+  /** 从相册选择 */
+  function chooseFromAlbum(){
+    closeAddSource();
     const input = document.getElementById('cloth-file-input');
     if(input) input.click();
+  }
+
+  /** 拍照 */
+  function chooseFromCamera(){
+    closeAddSource();
+    const input = document.getElementById('cloth-camera-input');
+    if(input) input.click();
+  }
+
+  function closeAddSource(){
+    document.getElementById('add-source-mask').classList.remove('show');
+    document.getElementById('add-source-sheet').classList.remove('show');
   }
 
   /** 处理选中的文件 → 打标签 → 入库 */
@@ -169,5 +188,5 @@ const PageCloset = (function(){
     document.getElementById('photo-drawer').classList.remove('show');
   }
 
-  return { render, addCloth, handleFiles, openDetail, confirmDelete, closeDrawer };
+  return { render, addCloth, chooseFromAlbum, chooseFromCamera, closeAddSource, handleFiles, openDetail, confirmDelete, closeDrawer };
 })();
