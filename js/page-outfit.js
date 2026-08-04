@@ -96,9 +96,14 @@ const PageOutfit = (function(){
     if(!AI.isAvailable('chat')){
       toast('请先在"我的"页配置智谱 API Key'); return;
     }
-    const clothes = Store.get('clothes') || [];
+    const allClothes = Store.get('clothes') || [];
+    // 过滤掉"待识别"的衣物——没标签的衣服参与搭配会让 AI 结果混乱
+    const clothes = allClothes.filter(c => c.tagged !== false && c.category && c.category !== '待识别');
+    if(clothes.length === 0){
+      toast('衣橱里还没有已识别的衣物\n请先在衣橱页让 AI 识别衣物'); return;
+    }
     if(clothes.length < 3){
-      toast('衣橱里至少要 3 件衣服才能搭配'); return;
+      toast(`已识别的衣物只有 ${clothes.length} 件，至少需要 3 件才能搭配\n（可在衣橱页点衣物→重新识别）`); return;
     }
 
     const condition = {
