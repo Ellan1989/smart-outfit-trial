@@ -181,12 +181,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // 5. 衣物上传 input
-  const clothInput = document.getElementById('cloth-file-input');
-  if(clothInput){
-    clothInput.addEventListener('change', e => {
+  // 5. 衣物上传 input（两个：相册 + 拍照）
+  const albumInput = document.getElementById('cloth-file-input');
+  const cameraInput = document.getElementById('cloth-camera-input');
+  if(albumInput){
+    albumInput.addEventListener('change', e => {
       PageCloset.handleFiles(e.target.files);
       e.target.value = '';  // 允许重复选同一文件
+    });
+  }
+  if(cameraInput){
+    cameraInput.addEventListener('change', e => {
+      PageCloset.handleFiles(e.target.files);
+      e.target.value = '';
     });
   }
 
