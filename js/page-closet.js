@@ -29,18 +29,21 @@ const PageCloset = (function(){
     ).join('');
 
     // 网格列表
-    const grid = clothes.map(c => `
+    const grid = clothes.map(c => {
+      const isPending = c.tagged === false || !c.category || c.category === '待识别';
+      return `
       <div class="cloth-card" onclick="PageCloset.openDetail('${c.id}')">
         <div class="cloth-thumb" style="background-image:url('${c.thumb||''}')">
           ${c.thumb ? '' : '<span>📷</span>'}
+          ${isPending ? '<span class="cloth-badge">待识别</span>' : ''}
         </div>
         <div class="cloth-info">
           <div class="cloth-cat">${escapeHtml(c.category||'未分类')}</div>
-          <div class="cloth-meta">${escapeHtml(c.color||'')} · ${escapeHtml(c.style||'')}</div>
+          <div class="cloth-meta">${isPending ? '<span style="color:#e07856">点此让 AI 识别</span>' : escapeHtml(c.color||'') + ' · ' + escapeHtml(c.style||'')}</div>
         </div>
         <div class="cloth-del" onclick="event.stopPropagation(); PageCloset.confirmDelete('${c.id}')">🗑️</div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
 
     el.innerHTML = `
       <div class="closet-stats">${statChips}</div>
@@ -55,14 +58,16 @@ const PageCloset = (function(){
     document.getElementById('add-source-sheet').classList.add('show');
   }
 
-  /** 从相册选择 */
+  /** 从相册选择 —— 关键：input.click() 必须在用户手势同步栈内，不能有前置 DOM 改动 */
   function chooseFromAlbum(){
+    // 先关菜单（异步，不阻塞 input.click）
     closeAddSource();
+    // 直接同步触发 input（保持在用户手势栈内）
     const input = document.getElementById('cloth-file-input');
     if(input) input.click();
   }
 
-  /** 拍照 */
+  /** 拍照 —— 同上，保持用户手势栈 */
   function chooseFromCamera(){
     closeAddSource();
     const input = document.getElementById('cloth-camera-input');
@@ -161,18 +166,84 @@ const PageCloset = (function(){
     ].filter(Boolean).join('');
 
     if(body){
+      const isTagged = c.tagged !== false && c.category && c.category !== '待识别';
       body.innerHTML = `
         <div class="detail-cloth-img" style="background-image:url('${c.thumb||''}')"></div>
         <div style="padding:16px 0">
-          <div style="font-size:13px;color:#999;margin-bottom:8px">AI 识别属性</div>
+          <div style="font-size:13px;color:#999;margin-bottom:8px">AI 识别属性 ${isTagged ? '' : '<span style="color:#e07856">（待识别）</span>'}</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${tags || '<span class="tag">暂无标签</span>'}</div>
-          ${c.brand ? `<div style="font-size:13px;color:#666;margin-bottom:6px">品牌：${escapeHtml(c.brand)}</div>` : ''}
+          ${c.brand && c.brand !== '未知' ? `<div style="font-size:13px;color:#666;margin-bottom:6px">品牌：${escapeHtml(c.brand)}</div>` : ''}
           ${c.desc ? `<div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:6px">${escapeHtml(c.desc)}</div>` : ''}
-          <div style="font-size:11px;color:#bbb;margin-top:20px">添加于 ${new Date(c.createdAt).toLocaleString('zh-CN')}</div>
+          <button class="retag-btn" onclick="PageCloset.retagOne('${c.id}')">🤖 ${isTagged ? '重新识别' : 'AI 识别此衣物'}</button>
+          <div style="font-size:11px;color:#bbb;margin-top:16px">添加于 ${new Date(c.createdAt).toLocaleString('zh-CN')}</div>
         </div>`;
     }
     document.getElementById('drawer-mask').classList.add('show');
     document.getElementById('photo-drawer').classList.add('show');
+  }
+
+  /** 单件衣物重新 AI 识别 */
+  async function retagOne(id){
+    const c = Store.getCloth(id);
+    if(!c) return;
+    if(!AI.isAvailable('vision')){
+      toast('请先配置智谱 API Key'); return;
+    }
+    if(!c.thumb){ toast('该衣物无图片，无法识别'); return; }
+    toast('AI 识别中...');
+    const r = await AI.analyzeCloth(c.thumb);
+    if(!r.ok){ toast('识别失败：' + r.error); return; }
+    c.category = r.tags.category || '其他';
+    c.color = r.tags.color || '';
+    c.season = r.tags.season || '';
+    c.occasion = r.tags.occasion || '';
+    c.style = r.tags.style || '';
+    c.brand = r.tags.brand || '';
+    c.desc = r.tags.desc || '';
+    c.tagged = true;
+    await Store.updateCloth(c);
+    toast('✓ 已更新识别结果');
+    // 刷新详情页内容
+    openDetail(id);
+    render();
+  }
+
+  /** 批量重新识别所有"待识别"的衣物（配完 API 后调用） */
+  async function retagAllPending(){
+    const clothes = Store.get('clothes') || [];
+    const pending = clothes.filter(c => c.tagged === false || !c.category || c.category === '待识别');
+    if(pending.length === 0){
+      toast('没有需要识别的衣物');
+      return;
+    }
+    if(!AI.isAvailable('vision')){
+      toast('请先配置智谱 API Key'); return;
+    }
+    const mask = document.getElementById('tagging-mask');
+    const status = document.getElementById('tagging-status');
+    if(mask) mask.classList.add('show');
+    let ok = 0;
+    for(let i = 0; i < pending.length; i++){
+      const c = pending[i];
+      if(status) status.textContent = `批量识别 ${i+1}/${pending.length}...`;
+      if(!c.thumb) continue;
+      const r = await AI.analyzeCloth(c.thumb);
+      if(r.ok && r.tags){
+        c.category = r.tags.category || '其他';
+        c.color = r.tags.color || '';
+        c.season = r.tags.season || '';
+        c.occasion = r.tags.occasion || '';
+        c.style = r.tags.style || '';
+        c.brand = r.tags.brand || '';
+        c.desc = r.tags.desc || '';
+        c.tagged = true;
+        await Store.updateCloth(c);
+        ok++;
+      }
+    }
+    if(mask) mask.classList.remove('show');
+    toast(`✓ 已识别 ${ok}/${pending.length} 件衣物`);
+    render();
   }
 
   function confirmDelete(id){
@@ -188,7 +259,7 @@ const PageCloset = (function(){
     document.getElementById('photo-drawer').classList.remove('show');
   }
 
-  return { render, addCloth, chooseFromAlbum, chooseFromCamera, closeAddSource, handleFiles, openDetail, confirmDelete, closeDrawer };
+  return { render, addCloth, chooseFromAlbum, chooseFromCamera, closeAddSource, handleFiles, openDetail, confirmDelete, closeDrawer, retagOne, retagAllPending };
 })();
 
 // 挂全局别名，供 HTML onclick="chooseFromAlbum()" 等调用
@@ -196,3 +267,4 @@ const PageCloset = (function(){
 window.chooseFromAlbum = function(){ PageCloset.chooseFromAlbum(); };
 window.chooseFromCamera = function(){ PageCloset.chooseFromCamera(); };
 window.closeAddSource = function(){ PageCloset.closeAddSource(); };
+window.retagAllPending = function(){ PageCloset.retagAllPending(); };
