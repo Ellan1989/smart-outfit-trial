@@ -58,43 +58,53 @@ const PageCloset = (function(){
   /** 处理选中的文件 → 打标签 → 入库 */
   async function handleFiles(files){
     if(!files || !files.length) return;
-    if(!AI.isAvailable('vision')){
-      toast('请先在"我的"页配置智谱 API Key');
-      return;
-    }
     const fileArr = Array.from(files);
     const mask = document.getElementById('tagging-mask');
     const status = document.getElementById('tagging-status');
+    const aiReady = AI.isAvailable('vision');
     if(mask) mask.classList.add('show');
 
+    let successCount = 0, failCount = 0;
     for(let i = 0; i < fileArr.length; i++){
       const file = fileArr[i];
-      if(status) status.textContent = `正在识别 ${i+1}/${fileArr.length}：${file.name||''}`;
+      if(status) status.textContent = `处理 ${i+1}/${fileArr.length}：${file.name||''}`;
       try {
-        // 1. 压成 base64（给视觉模型）
+        // 1. 先把照片转成 base64（这一步不需要 AI，本地完成）
         const base64 = await ImageUtils.fileToBase64(file, 768, 0.85);
-        if(!base64){ toast(`${file.name||'图片'} 处理失败`); continue; }
+        if(!base64){ toast(`${file.name||'图片'} 处理失败`); failCount++; continue; }
 
-        // 2. 调 GLM-4V 打标签（三态：加载→结果/错误）
-        if(status) status.textContent = `AI 分析中 ${i+1}/${fileArr.length}...`;
-        const r = await AI.analyzeCloth(base64);
-        if(!r.ok){ toast(`识别失败：${r.error}`); continue; }
-
-        // 3. 入库
+        // 2. 【关键改动】先入库（照片立即出现在衣橱），AI 标签待会再补
         const item = {
           id: 'c' + Date.now() + Math.random().toString(36).slice(2,6),
           thumb: base64,
-          category: r.tags.category || '其他',
-          color: r.tags.color || '',
-          season: r.tags.season || '',
-          occasion: r.tags.occasion || '',
-          style: r.tags.style || '',
-          brand: r.tags.brand || '',
-          desc: r.tags.desc || '',
+          category: '待识别',
+          color: '', season: '', occasion: '', style: '', brand: '', desc: '',
+          tagged: false,   // 标记：AI 还没打过标签
           note: '',
           createdAt: Date.now()
         };
         await Store.addCloth(item);
+        successCount++;
+        render();  // 立即刷新衣橱，让用户看到照片
+
+        // 3. AI 打标签（可选增强，失败不影响已存的照片）
+        if(aiReady){
+          if(status) status.textContent = `AI 识别中 ${i+1}/${fileArr.length}...`;
+          const r = await AI.analyzeCloth(base64);
+          if(r.ok && r.tags){
+            item.category = r.tags.category || '其他';
+            item.color = r.tags.color || '';
+            item.season = r.tags.season || '';
+            item.occasion = r.tags.occasion || '';
+            item.style = r.tags.style || '';
+            item.brand = r.tags.brand || '';
+            item.desc = r.tags.desc || '';
+            item.tagged = true;
+            await Store.updateCloth(item);
+            render();
+          }
+          // AI 失败：照片已存，只是没标签，不报错
+        }
       } catch(e){
         console.error(e);
         toast(`${file.name||'图片'} 出错：${e.message||e}`);
@@ -102,7 +112,16 @@ const PageCloset = (function(){
     }
 
     if(mask) mask.classList.remove('show');
-    toast(`✓ 已添加 ${fileArr.length} 件衣物`);
+    // 提示文案区分：有没有配 AI
+    if(successCount > 0){
+      if(aiReady){
+        toast(`✓ 已添加 ${successCount} 件衣物并完成 AI 识别`);
+      } else {
+        toast(`✓ 已添加 ${successCount} 件衣物（配置 AI 后可自动识别属性）`);
+      }
+    } else if(failCount > 0){
+      toast(`⚠️ ${failCount} 张图片处理失败`);
+    }
     render();
   }
 
