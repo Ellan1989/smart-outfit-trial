@@ -190,3 +190,9 @@ const PageCloset = (function(){
 
   return { render, addCloth, chooseFromAlbum, chooseFromCamera, closeAddSource, handleFiles, openDetail, confirmDelete, closeDrawer };
 })();
+
+// 挂全局别名，供 HTML onclick="chooseFromAlbum()" 等调用
+// （IIFE 内部的函数默认不暴露到全局作用域）
+window.chooseFromAlbum = function(){ PageCloset.chooseFromAlbum(); };
+window.chooseFromCamera = function(){ PageCloset.chooseFromCamera(); };
+window.closeAddSource = function(){ PageCloset.closeAddSource(); };
