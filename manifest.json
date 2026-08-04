@@ -1,0 +1,17 @@
+{
+  "name": "智能穿搭 · 让 AI 帮你搭出每天的精彩",
+  "short_name": "智能穿搭",
+  "description": "上传衣服照片 AI 自动打标签，根据天气/风格/目的智能生成今日穿搭，一键生成时尚海报。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f5f7",
+  "theme_color": "#e07856",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

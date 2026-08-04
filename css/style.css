@@ -1,0 +1,143 @@
+
+  /* ============ 全局 ============ */
+  :root {
+    /* 色板（从相册硬编码抽取为变量） */
+    --accent: #e07856;          /* 主橙 */
+    --accent-2: #d4633f;        /* 主橙深 */
+    --accent-light: #fef0e7;    /* 主橙浅底 */
+    --dark: #1a1a2e;            /* 深蓝 */
+    --dark-2: #2d3561;          /* 深蓝2 */
+    --bg: #f5f5f7;              /* 背景灰 */
+    --card: #fff;               /* 卡片白 */
+    --divider: #f0f0f2;         /* 分隔灰 */
+    --text: #2c2c2c;            /* 主文字 */
+    --text-sub: #999;           /* 次要文字 */
+    --text-strong: #1a1a2e;     /* 强调文字 */
+    --tag-blue-bg: #e8f0fe; --tag-blue: #1a73e8;
+    --tag-green-bg: #e6f4ea; --tag-green: #137333;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ============ 手机外壳（桌面预览形态） ============ */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 0 12px #0a0a14, 0 0 0 14px #2a2a3e, 0 40px 80px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+  }
+  /* 灵动岛 */
+  .dynamic-island {
+    position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 34px; background: #000; border-radius: 20px; z-index: 100;
+  }
+  /* 状态栏 */
+  .status-bar {
+    height: 54px; padding: 0 30px; display: flex; align-items: flex-end;
+    justify-content: space-between; padding-bottom: 8px;
+    font-size: 15px; font-weight: 600; color: #1a1a1a;
+    flex-shrink: 0; position: relative; z-index: 50;
+  }
+  .status-bar .icons { display: flex; align-items: center; gap: 5px; font-size: 13px; }
+  .battery { width: 24px; height: 12px; border: 1.5px solid #1a1a1a; border-radius: 3px; position: relative; padding: 1px; }
+  .battery::after { content:''; position: absolute; right: -3px; top: 3px; width: 2px; height: 4px; background: #1a1a1a; border-radius: 0 1px 1px 0; }
+  .battery-fill { width: 80%; height: 100%; background: #1a1a1a; border-radius: 1px; }
+
+  /* ============ 页面容器 ============ */
+  .screen { flex: 1; display: none; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* ============ 内容滚动区 ============ */
+  .content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* ============ 底部导航 ============ */
+  .tabbar {
+    height: 84px; background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    display: flex; padding-bottom: 20px; flex-shrink: 0; position: relative; z-index: 50;
+  }
+  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #999; cursor: pointer; transition: color 0.2s; }
+  .tab-item.active { color: var(--accent); }
+  .tab-item svg { width: 26px; height: 26px; }
+  .tab-item span { font-size: 10px; font-weight: 500; }
+
+  /* ============ 通用标题 ============ */
+  .nav-header { padding: 8px 20px 14px; display: flex; align-items: center; justify-content: space-between; background: #fff; flex-shrink: 0; }
+  .nav-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .nav-header .sub { font-size: 12px; color: #999; margin-top: 2px; font-weight: 500; }
+
+  .section-title { padding: 8px 20px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .section-title h2 { font-size: 18px; font-weight: 800; }
+
+  /* tag */
+  .tag { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: var(--divider); color: #666; font-weight: 600; }
+  .tag.blue { background: var(--tag-blue-bg); color: var(--tag-blue); }
+  .tag.green { background: var(--tag-green-bg); color: var(--tag-green); }
+  .tag.orange { background: var(--accent-light); color: var(--accent); }
+
+  /* ============ 我的页（复用相册） ============ */
+  .profile-header { background: linear-gradient(135deg, var(--dark), var(--dark-2)); padding: 20px 20px 60px; color: #fff; display: flex; align-items: center; gap: 16px; }
+  .avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #f5b8a0); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; border: 3px solid rgba(255,255,255,0.2); }
+  .profile-header .uname { font-size: 19px; font-weight: 700; }
+  .profile-header .uid { font-size: 12px; opacity: 0.7; margin-top: 3px; }
+  .profile-mini-stat { margin: -44px 20px 16px; background: #fff; border-radius: 20px; padding: 18px; display: flex; justify-content: space-around; box-shadow: 0 8px 30px rgba(0,0,0,0.08); position: relative; z-index: 2; }
+  .pms-item { text-align: center; }
+  .pms-item .n { font-size: 22px; font-weight: 800; color: var(--dark); }
+  .pms-item .l { font-size: 11px; color: #999; margin-top: 2px; }
+  .setting-list { padding: 16px 20px; }
+  .setting-group { background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+  .setting-row { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--divider); font-size: 14px; cursor: pointer; }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-row:active { background: #fafafa; }
+  .setting-row .left { display: flex; align-items: center; gap: 12px; }
+  .setting-row .sicon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .setting-row .arrow { color: #ccc; }
+  .privacy-banner { margin: 0 20px 16px; padding: 14px 16px; background: linear-gradient(135deg, #e6f4ea, #f0f8f2); border-radius: 16px; display: flex; gap: 12px; align-items: flex-start; border: 1px solid #c8e6d0; }
+  .privacy-banner .pb-icon { font-size: 22px; flex-shrink: 0; }
+  .privacy-banner .pb-text { font-size: 12px; color: #2a5a3a; line-height: 1.5; }
+  .privacy-banner .pb-text b { display: block; margin-bottom: 2px; font-size: 13px; color: #137333; }
+
+  /* Toast */
+  .toast { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 999; max-width: 300px; text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ============ 底部抽屉（复用相册） ============ */
+  .drawer-mask { position: absolute; inset: 0; background: rgba(0,0,0,0); z-index: 800; pointer-events: none; transition: background 0.3s; }
+  .drawer-mask.show { background: rgba(0,0,0,0.4); pointer-events: auto; }
+  .photo-drawer { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 24px 24px 0 0; padding: 10px 20px 36px; z-index: 820; transform: translateY(110%); transition: transform 0.35s cubic-bezier(0.2,0.8,0.2,1); max-height: 78%; display: flex; flex-direction: column; box-shadow: 0 -8px 40px rgba(0,0,0,0.2); }
+  .photo-drawer.show { transform: translateY(0); }
+  .drawer-handle { width: 40px; height: 5px; background: #e0e0e0; border-radius: 3px; margin: 2px auto 14px; cursor: pointer; }
+  .drawer-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .drawer-spot { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+  .drawer-sub { font-size: 12px; color: #999; margin-top: 3px; font-weight: 500; }
+  .drawer-close { width: 30px; height: 30px; border-radius: 50%; background: #f0f0f2; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px; flex-shrink: 0; cursor: pointer; }
+
+  /* ============ 真机全屏适配（PWA / 移动端） ============ */
+  /* 当屏幕宽度 ≤ 500px（手机），取消手机壳，改为全屏铺满 */
+  @media (max-width: 500px) {
+    html, body { background: var(--bg); }
+    .phone {
+      width: 100vw; height: 100vh; height: 100dvh;
+      border-radius: 0; box-shadow: none;
+    }
+    .dynamic-island { display: none; }
+    .status-bar { display: none; }   /* 真机有自己的状态栏 */
+    .tabbar { padding-bottom: env(safe-area-inset-bottom, 0); }
+    .nav-header { padding-top: env(safe-area-inset-top, 14px); }
+  }

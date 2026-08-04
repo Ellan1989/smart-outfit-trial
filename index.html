@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>智能穿搭 · 让 AI 帮你搭出每天的精彩</title>
+
+<!-- ===== PWA 三件套（相册缺失，本方案补全） ===== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e07856">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="智能穿搭">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="stylesheet" href="css/style.css" />
+
+<style>
+  /* AI 功能样式（复用相册） */
+  .ai-output { margin-top:12px; padding:14px; background:#fff; border-radius:12px; font-size:14px; line-height:1.8; color:#333; white-space:pre-wrap; }
+  .ai-output.streaming::after { content:'▋'; color:#e07856; animation:blink 0.8s infinite; }
+  @keyframes blink { 50%{opacity:0;} }
+  .ai-loading { display:flex; align-items:center; justify-content:center; gap:8px; padding:20px; color:#999; font-size:13px; }
+  .ai-dot { width:6px; height:6px; background:#e07856; border-radius:50%; animation:bounce 1.2s infinite; }
+  .ai-dot:nth-child(2){ animation-delay:0.2s; } .ai-dot:nth-child(3){ animation-delay:0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4;} 40%{transform:scale(1);opacity:1;} }
+  .ai-error { margin-top:12px; padding:12px; background:#fff5f5; border:1px solid #ffd5d5; border-radius:10px; font-size:12px; color:#c0392b; line-height:1.6; }
+  .empty-state { padding:60px 30px; text-align:center; color:#999; }
+  .empty-state .es-icon { font-size:48px; margin-bottom:14px; opacity:0.4; }
+  .empty-state .es-title { font-size:16px; font-weight:700; color:#666; }
+  .empty-state .es-sub { font-size:12px; margin-top:8px; line-height:1.6; }
+  .empty-hint { padding:30px 20px; text-align:center; color:#bbb; font-size:13px; }
+
+  /* 抽屉输入样式（复用相册 supplement） */
+  .supp-label { font-size:13px; font-weight:700; margin-bottom:8px; }
+  .supp-input { width:100%; padding:12px 14px; border:1px solid #e0e0e0; border-radius:12px; font-size:14px; font-family:inherit; outline:none; background:#fff; }
+  .supp-input:focus { border-color:#e07856; }
+  .supp-hint { font-size:11px; color:#bbb; margin-top:6px; }
+  .supp-save { width:100%; margin-top:20px; padding:14px; background:linear-gradient(135deg,#e07856,#d4633f); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:700; cursor:pointer; }
+
+  /* 打标签遮罩 */
+  .tagging-mask { position:absolute; inset:0; background:rgba(0,0,0,0.5); z-index:850; display:none; align-items:center; justify-content:center; }
+  .tagging-mask.show { display:flex; }
+  .tagging-box { background:#fff; border-radius:18px; padding:24px 30px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3); }
+  .tagging-box .tg-icon { font-size:40px; margin-bottom:10px; }
+  .tagging-box .tg-status { font-size:14px; color:#333; font-weight:600; }
+
+  /* 衣橱页 */
+  .closet-stats { display:flex; flex-wrap:wrap; gap:6px; padding:14px 20px 4px; }
+  .cloth-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 20px 0; }
+  .cloth-card { background:#fff; border-radius:16px; overflow:hidden; position:relative; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .cloth-thumb { width:100%; aspect-ratio:1; background-size:cover; background-position:center; background-color:#f0f0f2; display:flex; align-items:center; justify-content:center; }
+  .cloth-thumb span { font-size:32px; opacity:0.3; }
+  .cloth-info { padding:10px 12px; }
+  .cloth-cat { font-size:13px; font-weight:700; color:#1a1a2e; }
+  .cloth-meta { font-size:11px; color:#999; margin-top:3px; }
+  .cloth-del { position:absolute; top:8px; right:8px; width:26px; height:26px; background:rgba(0,0,0,0.4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .detail-cloth-img { width:100%; aspect-ratio:1; background-size:cover; background-position:center; background-color:#f0f0f2; }
+
+  /* 穿搭页 */
+  .cond-card { margin:14px 20px; background:#fff; border-radius:18px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .cond-row { display:flex; align-items:center; padding:8px 0; border-bottom:1px solid #f7f7f8; }
+  .cond-row:last-child { border-bottom:none; }
+  .cond-label { width:64px; font-size:14px; font-weight:600; color:#333; }
+  .cond-input { flex:1; border:none; outline:none; font-size:14px; font-family:inherit; background:transparent; }
+  .cond-unit { font-size:13px; color:#999; }
+  .ai-btn { width:100%; padding:14px; background:linear-gradient(135deg,#1a1a2e,#2d3561); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .ai-btn:active { opacity:0.85; }
+  .look-card { background:#fff; border-radius:18px; padding:16px; margin-top:14px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .look-picks { display:flex; gap:10px; overflow-x:auto; padding-bottom:12px; }
+  .look-picks::-webkit-scrollbar { display:none; }
+  .pick-item { flex:0 0 80px; }
+  .pick-thumb { width:80px; height:80px; border-radius:12px; background-size:cover; background-position:center; background-color:#f0f0f2; display:flex; align-items:center; justify-content:center; }
+  .pick-thumb span { font-size:22px; opacity:0.3; }
+  .pick-body { margin-top:6px; text-align:center; }
+  .pick-role { font-size:11px; font-weight:700; color:#e07856; }
+  .pick-desc { font-size:10px; color:#999; margin-top:2px; }
+  .look-reason { font-size:13px; color:#555; line-height:1.7; padding:12px 0; border-top:1px solid #f7f7f8; }
+  .poster-btn { margin-top:10px; }
+  .save-look-btn { width:100%; margin-top:10px; padding:12px; background:#f0f0f2; color:#666; border:none; border-radius:12px; font-size:13px; font-weight:600; cursor:pointer; }
+  .poster-wrap { text-align:center; }
+  .poster-img { width:100%; border-radius:14px; display:block; }
+  .poster-dl { display:inline-block; margin-top:10px; padding:8px 18px; background:#e07856; color:#fff; border-radius:20px; font-size:13px; text-decoration:none; font-weight:600; }
+  .history-card { display:flex; align-items:center; gap:12px; background:#fff; border-radius:14px; padding:10px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); position:relative; }
+  .history-cover { width:60px; height:60px; border-radius:10px; background-size:cover; background-position:center; background-color:#f0f0f2; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .history-cover span { font-size:22px; opacity:0.3; }
+  .history-body { flex:1; min-width:0; }
+  .history-cond { font-size:13px; font-weight:600; color:#333; }
+  .history-date { font-size:11px; color:#999; margin-top:3px; }
+  .history-poster-badge { font-size:10px; color:#fff; background:#e07856; padding:2px 8px; border-radius:8px; }
+  .history-del { position:absolute; top:8px; right:8px; font-size:14px; }
+
+  /* 悬浮添加按钮 */
+  .fab { position:absolute; right:20px; bottom:104px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#e07856,#d4633f); color:#fff; border:none; font-size:28px; box-shadow:0 6px 20px rgba(224,120,86,0.4); cursor:pointer; z-index:40; display:flex; align-items:center; justify-content:center; }
+
+  /* 激活遮罩 */
+  .license-mask { position:absolute; inset:0; background:linear-gradient(160deg,#1a1a2e 0%,#2d3561 60%,#e07856 140%); z-index:950; display:none; flex-direction:column; align-items:center; justify-content:center; padding:40px 30px; }
+  .license-mask.show { display:flex; }
+  .license-box { width:100%; max-width:320px; text-align:center; color:#fff; }
+  .lic-icon { font-size:56px; margin-bottom:16px; }
+  .lic-title { font-size:24px; font-weight:800; letter-spacing:-0.5px; }
+  .lic-sub { font-size:12px; opacity:0.8; margin-top:10px; line-height:1.6; }
+  .lic-input { width:100%; margin-top:24px; padding:14px 16px; border-radius:14px; border:none; font-size:16px; font-family:inherit; text-align:center; letter-spacing:1px; background:rgba(255,255,255,0.95); color:#1a1a2e; outline:none; }
+  .lic-error { font-size:12px; color:#ffd5d5; margin-top:10px; min-height:16px; }
+  .lic-btn { width:100%; margin-top:16px; padding:15px; background:#fff; color:#1a1a2e; border:none; border-radius:14px; font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.3); }
+  .lic-btn:active { opacity:0.85; }
+  .lic-tip { font-size:10px; opacity:0.6; margin-top:24px; line-height:1.5; }
+
+  /* 试用版徽章 */
+  .edition-badge { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:110; background:rgba(224,120,86,0.95); color:#fff; font-size:10px; font-weight:700; padding:3px 12px; border-radius:10px; letter-spacing:0.5px; box-shadow:0 2px 8px rgba(224,120,86,0.4); display:none; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="dynamic-island"></div>
+
+  <!-- 试用版徽章（仅 trial 模式显示，JS 控制） -->
+  <div class="edition-badge" id="edition-badge" style="display:none">试用版</div>
+
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="icons">
+      <span>●●●●</span>
+      <span style="margin-left:4px">📶</span>
+      <div class="battery"><div class="battery-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- ========== 页面1: 衣橱 ========== -->
+  <div class="screen active" id="screen-closet">
+    <div class="nav-header">
+      <div>
+        <h1>我的衣橱</h1>
+        <div class="sub">AI 自动识别每件衣物的属性</div>
+      </div>
+    </div>
+    <div class="content" id="closet-content"></div>
+    <button class="fab" onclick="PageCloset.addCloth()">+</button>
+  </div>
+
+  <!-- ========== 页面2: 今日穿搭 ========== -->
+  <div class="screen" id="screen-outfit">
+    <div class="content" id="outfit-content"></div>
+  </div>
+
+  <!-- ========== 页面3: 我的 ========== -->
+  <div class="screen" id="screen-me">
+    <div class="content" id="me-content"></div>
+  </div>
+
+  <!-- 隐藏的文件选择 input（衣橱添加用） -->
+  <input type="file" id="cloth-file-input" accept="image/*" capture="environment" multiple style="display:none">
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 激活遮罩（未激活时显示） -->
+  <div class="license-mask" id="license-mask">
+    <div class="license-box">
+      <div class="lic-icon">🔐</div>
+      <div class="lic-title">激活智能穿搭</div>
+      <div class="lic-sub">请输入您购买的激活码<br>激活码绑定本设备，仅限本人使用</div>
+      <input type="text" id="license-code" class="lic-input" placeholder="SO-XXXX-XXXX-XXXX" autocomplete="off">
+      <div id="license-error" class="lic-error"></div>
+      <button class="lic-btn" onclick="doActivate()">激活并开始使用</button>
+      <div class="lic-tip">💡 激活码可在"我的"页管理，换设备需联系卖家解绑</div>
+    </div>
+  </div>
+
+  <!-- 打标签遮罩 -->
+  <div class="tagging-mask" id="tagging-mask">
+    <div class="tagging-box">
+      <div class="tg-icon">🤖</div>
+      <div class="tg-status" id="tagging-status">AI 识别中...</div>
+    </div>
+  </div>
+
+  <!-- 底部抽屉（单品详情用） -->
+  <div class="drawer-mask" id="drawer-mask" onclick="PageCloset.closeDrawer()"></div>
+  <div class="photo-drawer" id="photo-drawer" style="max-height:85%">
+    <div class="drawer-handle" onclick="PageCloset.closeDrawer()"></div>
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-spot" id="drawer-title">衣物</div>
+        <div class="drawer-sub" id="drawer-sub">详情</div>
+      </div>
+      <div class="drawer-close" onclick="PageCloset.closeDrawer()">✕</div>
+    </div>
+    <div style="padding:0 0 10px;overflow-y:auto" id="drawer-body"></div>
+  </div>
+
+  <!-- AI 设置面板 -->
+  <div class="drawer-mask" id="ai-mask" onclick="closeAISettings()"></div>
+  <div class="photo-drawer" id="ai-panel" style="max-height:90%">
+    <div class="drawer-handle" onclick="closeAISettings()"></div>
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-spot">🤖 AI 配置</div>
+        <div class="drawer-sub">配置智谱 API Key，启用打标签 / 搭配 / 海报</div>
+      </div>
+      <div class="drawer-close" onclick="closeAISettings()">✕</div>
+    </div>
+    <div style="padding:0 20px 30px;overflow-y:auto">
+      <div class="supp-label">选择默认模型</div>
+      <select id="ai-preset" class="supp-input" style="height:44px;margin-bottom:4px" onchange="onPresetChange()">
+        <option value="glm">智谱 · GLM-4.6（文本，搭配推荐）</option>
+        <option value="glm-vision">智谱 · GLM-4V（视觉，打标签）</option>
+        <option value="cogview">智谱 · CogView-3-Flash（生图，海报）</option>
+        <option value="custom">自定义（OpenAI 兼容接口）</option>
+      </select>
+      <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.5">
+        💡 三个智谱模型共用同一个 API Key，选任意一个并填入 Key 即可启用全部功能。
+      </div>
+      <div id="ai-custom-fields" style="display:none;margin-top:12px">
+        <input type="text" id="ai-custom-base" class="supp-input" placeholder="接口地址，如 https://api.xxx.com/v1" style="margin-bottom:8px">
+        <input type="text" id="ai-custom-model" class="supp-input" placeholder="模型名，如 gpt-4o-mini">
+      </div>
+      <div class="supp-label" style="margin-top:18px">API Key</div>
+      <input type="password" id="ai-key" class="supp-input" placeholder="sk-..." autocomplete="off">
+      <div class="supp-hint" id="ai-key-hint"></div>
+      <div id="ai-getkey-link" style="margin-top:8px"></div>
+      <div style="margin-top:14px;padding:12px;background:#fff8e8;border:1px solid #ffe089;border-radius:10px;font-size:11px;color:#8a6d1b;line-height:1.6">
+        🔒 Key 仅保存在你本机浏览器（localStorage），不会上传服务器，不进入代码。<br>
+        建议在智谱后台设置消费上限。
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="supp-save" style="flex:1" onclick="saveAISettings()">保存配置</button>
+        <button style="flex:0 0 auto;padding:14px 18px;background:#f0f0f2;color:#666;border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer" onclick="clearAISettings()">清除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="tabbar">
+    <div class="tab-item active" data-screen="closet" onclick="switchTab('closet')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 4 6v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6l-2-4Z"/><path d="M4 6h16"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span>衣橱</span>
+    </div>
+    <div class="tab-item" data-screen="outfit" onclick="switchTab('outfit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 9 7l-7 1 5 5-1 7 6-3 6 3-1-7 5-5-7-1Z"/></svg>
+      <span>穿搭</span>
+    </div>
+    <div class="tab-item" data-screen="me" onclick="switchTab('me')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+      <span>我的</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== JS 模块（按依赖顺序加载） ========== -->
+<!-- edition.js 必须第一个加载，其他模块依赖 EDITION 配置 -->
+<script src="js/edition.js?v=6"></script>
+<script src="lib/heic2any.min.js"></script>
+<script src="lib/fingerprint.min.js"></script>
+<script src="js/db.js?v=6"></script>
+<script src="js/config.js?v=6"></script>
+<script src="js/ai.js?v=6"></script>
+<script src="js/image-utils.js?v=6"></script>
+<script src="js/store.js?v=6"></script>
+<script src="js/license.js?v=6"></script>
+<script src="js/page-closet.js?v=6"></script>
+<script src="js/page-outfit.js?v=6"></script>
+<script src="js/page-me.js?v=6"></script>
+<script src="js/main.js?v=6"></script>
+</body>
+</html>

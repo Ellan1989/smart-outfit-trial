@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e07856"/>
+      <stop offset="100%" stop-color="#d4633f"/>
+    </linearGradient>
+    <linearGradient id="shirt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f5e6dc"/>
+    </linearGradient>
+  </defs>
+  <!-- 圆角背景 -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- 衣服图标（简化T恤） -->
+  <g transform="translate(256, 280)">
+    <!-- 衣领 -->
+    <path d="M -40,-110 Q 0,-80 40,-110 L 60,-95 L 40,-70 Q 0,-50 -40,-70 L -60,-95 Z" fill="#1a1a2e" opacity="0.85"/>
+    <!-- 衣身 -->
+    <path d="M -110,-70 L -60,-95 Q 0,-50 60,-95 L 110,-70 L 90,140 L -90,140 Z" fill="url(#shirt)"/>
+    <!-- 衣身阴影/分割 -->
+    <path d="M 0,-50 L 0,140" stroke="#e07856" stroke-width="3" opacity="0.4"/>
+    <!-- AI 星标（代表智能） -->
+    <g transform="translate(0, 40)">
+      <path d="M 0,-30 L 8,-8 L 30,0 L 8,8 L 0,30 L -8,8 L -30,0 L -8,-8 Z" fill="#1a1a2e"/>
+    </g>
+  </g>
+</svg>
