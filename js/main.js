@@ -90,6 +90,17 @@ function saveAISettings(){
   }
   toast('✓ AI 配置已保存');
   closeAISettings();
+
+  // 配完 API 后，检查有没有"待识别"的衣物，提示用户批量识别
+  const clothes = Store.get('clothes') || [];
+  const pendingCount = clothes.filter(c => c.tagged === false || !c.category || c.category === '待识别').length;
+  if(pendingCount > 0){
+    setTimeout(() => {
+      if(confirm(`检测到 ${pendingCount} 件衣物还未 AI 识别。\n是否现在批量识别？\n（这会让 AI 重新分析这些衣物的类别、颜色、风格）`)){
+        PageCloset.retagAllPending();
+      }
+    }, 600);
+  }
 }
 function clearAISettings(){
   AI_CONFIG.clear();
