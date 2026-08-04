@@ -102,6 +102,15 @@ function clearAISettings(){
   toast('已清除 AI 配置');
 }
 
+/** 展开/折叠 API 配置教程 */
+function toggleGuide(){
+  const steps = document.getElementById('guide-steps');
+  const arrow = document.getElementById('guide-arrow');
+  const isOpen = steps.style.display !== 'none';
+  steps.style.display = isOpen ? 'none' : 'block';
+  arrow.classList.toggle('open', !isOpen);
+}
+
 /** ===== 激活授权（读 EDITION 配置区分试用版/商用版）===== */
 // 试用版 EDITION.licenseRequired = false，直接跳过激活
 // 商用版 EDITION.licenseRequired = true，需激活码
