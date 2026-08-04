@@ -182,20 +182,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // 5. 衣物上传 input（两个：相册 + 拍照）
+  // 用 label 关联触发，change 事件里处理文件 + 关菜单
   const albumInput = document.getElementById('cloth-file-input');
   const cameraInput = document.getElementById('cloth-camera-input');
-  if(albumInput){
-    albumInput.addEventListener('change', e => {
-      PageCloset.handleFiles(e.target.files);
-      e.target.value = '';  // 允许重复选同一文件
-    });
+  function onPicked(e){
+    // 先关菜单（文件选择器已关闭，此时改 DOM 安全）
+    const mask = document.getElementById('add-source-mask');
+    const sheet = document.getElementById('add-source-sheet');
+    if(mask) mask.classList.remove('show');
+    if(sheet) sheet.classList.remove('show');
+    // 处理文件
+    PageCloset.handleFiles(e.target.files);
+    e.target.value = '';  // 允许重复选同一文件
   }
-  if(cameraInput){
-    cameraInput.addEventListener('change', e => {
-      PageCloset.handleFiles(e.target.files);
-      e.target.value = '';
-    });
-  }
+  if(albumInput) albumInput.addEventListener('change', onPicked);
+  if(cameraInput) cameraInput.addEventListener('change', onPicked);
 
   // 6. 数据变化时自动刷新当前页
   Store.on('change:clothes', () => {
