@@ -55,6 +55,9 @@
   .add-source-btn .as-desc { font-size:11px; color:#999; margin-top:2px; }
   .add-source-cancel { text-align:center; padding:14px; font-size:14px; color:#999; font-weight:600; margin-top:6px; cursor:pointer; }
 
+  /* 视觉隐藏但保持可交互（比 display:none 更适合 label 关联的 input） */
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
   /* 衣橱页 */
   .closet-stats { display:flex; flex-wrap:wrap; gap:6px; padding:14px 20px 4px; }
   .cloth-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 20px 0; }
@@ -178,8 +181,8 @@
 
   <!-- 隐藏的文件选择 input（衣橱添加用）
        两个 input：cloth-file-input 走相册（无capture），cloth-camera-input 走拍照（带capture） -->
-  <input type="file" id="cloth-file-input" accept="image/*" multiple style="display:none">
-  <input type="file" id="cloth-camera-input" accept="image/*" capture="environment" style="display:none">
+  <input type="file" id="cloth-file-input" accept="image/*" multiple class="sr-only">
+  <input type="file" id="cloth-camera-input" accept="image/*" capture="environment" class="sr-only">
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
@@ -205,25 +208,27 @@
     </div>
   </div>
 
-  <!-- 添加衣物选择菜单（拍照/相册） -->
+  <!-- 添加衣物选择菜单（拍照/相册）
+       关键：用 <label for="..."> 关联 input，而非 JS 的 input.click()。
+       label 点击是浏览器原生行为，100% 保留用户手势上下文，iOS/安卓都可靠触发文件选择。 -->
   <div class="drawer-mask" id="add-source-mask" onclick="closeAddSource()"></div>
   <div class="add-source-sheet" id="add-source-sheet">
     <div class="drawer-handle" onclick="closeAddSource()"></div>
     <div style="font-size:15px;font-weight:700;text-align:center;margin-bottom:16px">添加衣物</div>
-    <div class="add-source-btn" onclick="chooseFromCamera()">
+    <label class="add-source-btn" for="cloth-camera-input">
       <span class="as-icon">📷</span>
       <div>
         <div class="as-title">拍照</div>
         <div class="as-desc">用摄像头拍衣服</div>
       </div>
-    </div>
-    <div class="add-source-btn" onclick="chooseFromAlbum()">
+    </label>
+    <label class="add-source-btn" for="cloth-file-input">
       <span class="as-icon">🖼️</span>
       <div>
         <div class="as-title">从相册选择</div>
         <div class="as-desc">选手机里已有的照片（可多选）</div>
       </div>
-    </div>
+    </label>
     <div class="add-source-cancel" onclick="closeAddSource()">取消</div>
   </div>
 
@@ -341,18 +346,18 @@
 
 <!-- ========== JS 模块（按依赖顺序加载） ========== -->
 <!-- edition.js 必须第一个加载，其他模块依赖 EDITION 配置 -->
-<script src="js/edition.js?v=9"></script>
+<script src="js/edition.js?v=12"></script>
 <script src="lib/heic2any.min.js"></script>
 <script src="lib/fingerprint.min.js"></script>
-<script src="js/db.js?v=9"></script>
-<script src="js/config.js?v=9"></script>
-<script src="js/ai.js?v=9"></script>
-<script src="js/image-utils.js?v=9"></script>
-<script src="js/store.js?v=9"></script>
-<script src="js/license.js?v=9"></script>
-<script src="js/page-closet.js?v=9"></script>
-<script src="js/page-outfit.js?v=9"></script>
-<script src="js/page-me.js?v=9"></script>
-<script src="js/main.js?v=9"></script>
+<script src="js/db.js?v=12"></script>
+<script src="js/config.js?v=12"></script>
+<script src="js/ai.js?v=12"></script>
+<script src="js/image-utils.js?v=12"></script>
+<script src="js/store.js?v=12"></script>
+<script src="js/license.js?v=12"></script>
+<script src="js/page-closet.js?v=12"></script>
+<script src="js/page-outfit.js?v=12"></script>
+<script src="js/page-me.js?v=12"></script>
+<script src="js/main.js?v=12"></script>
 </body>
 </html>
